@@ -13,13 +13,24 @@ class Customer(object):
 
 @app.parking_functions('Create_parking_lot $length')
 def create_parking_lot(length):
-    parking_lot = ParkingLot()
+    """
+    create a parking_slot list with the length sent in params
+    :param length:string
+    :return: string
+     """
     parking_lot.parking_slots = [None] * int(length)
     return 'Created parking of {} slots'.format(length)
 
 
 @app.parking_functions('Park $car_registration_number $driver_age $age')
 def assign_slot(car_registration_number_number, driver_age, age):
+    """
+    get the first not none element from parking_slots and assign it the values sent
+    :param car_registration_number_number: string
+    :param driver_age: string
+    :param age: string
+    :return: string
+    """
     try:
         slot_to_be_assigned = next(
             slot for slot in range(len(parking_lot.parking_slots)) if parking_lot.parking_slots[slot] is None)
@@ -29,33 +40,38 @@ def assign_slot(car_registration_number_number, driver_age, age):
             customer = Customer(car_registration_number_number, int(age))
             parking_lot.parking_slots.insert(slot_to_be_assigned, customer)
             return 'Car with vehicle registration number "{}" has been parked at slot number {}'.format(
-                customer.car_registration_number, slot_to_be_assigned+1)
+                customer.car_registration_number, slot_to_be_assigned + 1)
         else:
             return 'Parking lot is full'
     except AttributeError:
-            return 'Please create a parking lot first'
+        return 'Please create a parking lot first'
     except BaseException as e:
-            return e
+        return e
 
 
 @app.parking_functions('Slot_numbers_for_driver_of_age $age')
 def find_slots_for_given_driver_age(age):
-    slots_for_certain_age = [slot+1 for slot, customer in enumerate(parking_lot.parking_slots) if
-                              customer and customer.age == int(age)]
+    slots_for_certain_age = [slot + 1 for slot, customer in enumerate(parking_lot.parking_slots) if
+                             customer and customer.age == int(age)]
     return slots_for_certain_age
 
 
 @app.parking_functions('Slot_number_for_car_with_number $ car_registration_number')
 def find_slots_for_given_number(car_registration_number_number):
     slot_for_certain_car_number = next(
-        slot+1 for slot, customer in enumerate(parking_lot.parking_slots) if
+        slot + 1 for slot, customer in enumerate(parking_lot.parking_slots) if
         customer.car_registration_number == car_registration_number_number)
     return slot_for_certain_car_number
 
 
 @app.parking_functions('Leave $slot')
 def de_assign_slot(slot_number):
-    int_slot_number = int(slot_number)- 1
+    """
+    set the value none at the position sent in param
+    :param slot_number:str
+    :return: str
+    """
+    int_slot_number = int(slot_number) - 1
     slot_to_be_removed = parking_lot.parking_slots[int_slot_number]
     parking_lot.parking_slots[int_slot_number] = None
     return 'slot number {} vacated, the car with vehicle registration number "{}" left the space , the driver of the ' \
