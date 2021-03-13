@@ -25,7 +25,7 @@ def create_parking_lot(length):
 @app.parking_functions('Park $car_registration_number $driver_age $age')
 def assign_slot(car_registration_number_number, driver_age, age):
     """
-    get the first not none element from parking_slots and assign it the values sent
+    get the first  none element from parking_slots and assign it the values sent
     :param car_registration_number_number: string
     :param driver_age: string
     :param age: string
