@@ -20,15 +20,22 @@ def create_parking_lot(length):
 
 @app.parking_functions('Park $car_registration_number $driver_age $age')
 def assign_slot(car_registration_number_number, driver_age, age):
-    slot_to_be_assigned = next(
-        slot for slot in range(len(parking_lot.parking_slots)) if parking_lot.parking_slots[slot] is None)
-    if slot_to_be_assigned is not None and driver_age:
-        customer = Customer(car_registration_number_number, int(age))
-        parking_lot.parking_slots.insert(slot_to_be_assigned, customer)
-        return 'Car with vehicle registration number "{}" has been parked at slot number {}'.format(
-            customer.car_registration_number, slot_to_be_assigned+1)
-    else:
-        return 'Parking lot is full'
+    try:
+        slot_to_be_assigned = next(
+            slot for slot in range(len(parking_lot.parking_slots)) if parking_lot.parking_slots[slot] is None)
+        if not driver_age:
+            print("Please add the driver's age in the command")
+        if slot_to_be_assigned is not None:
+            customer = Customer(car_registration_number_number, int(age))
+            parking_lot.parking_slots.insert(slot_to_be_assigned, customer)
+            return 'Car with vehicle registration number "{}" has been parked at slot number {}'.format(
+                customer.car_registration_number, slot_to_be_assigned+1)
+        else:
+            return 'Parking lot is full'
+    except AttributeError:
+            return 'Please create a parking lot first'
+    except BaseException as e:
+            return e
 
 
 @app.parking_functions('Slot_numbers_for_driver_of_age $age')
