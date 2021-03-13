@@ -23,7 +23,8 @@ class ParkingApp:
         :return:
         """
         try:
-            filename = sys.argv[1]
+            #filename = sys.argv[1]
+            filename = 'input.txt'
             with open(filename) as file:
                 for line in file:
                     line_split = line.split()
@@ -34,13 +35,7 @@ class ParkingApp:
                             function_to_be_called = self.function_dict[func]
                             args = (line_split[1:])
                             returned_value = function_to_be_called(*args)
-                            if returned_value:
-                                if type(returned_value) == list:
-                                    print(*returned_value, sep=",")
-                                else:
-                                    print(returned_value)
-                            else:
-                                print('None')
+                            print(returned_value)
                             break
                     if not is_valid_command:
                         print('Please type a valid command ')
@@ -50,7 +45,8 @@ class ParkingApp:
                 exit(1)
             else:
                 print('Found some issue while executing the command')
-        except Exception:
+        except Exception as e:
+            print(e)
             print('Found some issue while executing the command')
 
 

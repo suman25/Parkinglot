@@ -1,5 +1,6 @@
 from parking_decorators import ParkingApp
 from parkinglot import ParkingLot
+import re
 
 app = ParkingApp()
 parking_lot = ParkingLot()
@@ -18,27 +19,27 @@ def create_parking_lot(length):
     :param length:string
     :return: string
      """
-    parking_lot.parking_slots = [None] * int(length)
+    parking_lot.parking_slots = [None] * (int(length))
     return 'Created parking of {} slots'.format(length)
 
 
 @app.parking_functions('Park $car_registration_number $driver_age $age')
-def assign_slot(car_registration_number_number, driver_age, age):
+def assign_slot(*args):
     """
-    get the first  none element from parking_slots and assign it the values sent
-    :param car_registration_number_number: string
-    :param driver_age: string
-    :param age: string
-    :return: string
+    this function gets *args so that changes for more args can be done easily,
+    first check if the arguments are valid , get the first None element in the list , insert a object with values in list
+    :param args: multiple arguments
+    :return:
     """
     try:
+        is_valid, message = check_for_valid_args(*args)
+        if not is_valid:
+            return message
         slot_to_be_assigned = next(
-            slot for slot in range(len(parking_lot.parking_slots)) if parking_lot.parking_slots[slot] is None)
-        if not driver_age:
-            print("Please add the driver's age in the command")
+            (slot for slot in range(len(parking_lot.parking_slots)) if parking_lot.parking_slots[slot] is None), None)
         if slot_to_be_assigned is not None:
-            customer = Customer(car_registration_number_number, int(age))
-            parking_lot.parking_slots.insert(slot_to_be_assigned, customer)
+            customer = Customer(args[0], int(args[2]))
+            parking_lot.parking_slots[slot_to_be_assigned] = customer
             return 'Car with vehicle registration number "{}" has been parked at slot number {}'.format(
                 customer.car_registration_number, slot_to_be_assigned + 1)
         else:
@@ -49,18 +50,37 @@ def assign_slot(car_registration_number_number, driver_age, age):
         return e
 
 
+def check_for_valid_args(*args):
+    try:
+        plate_format = re.compile('^[a-zA-Z]{2}-[0-9]{2}-[a-zA-z]{2}-[0-9]{4}$')
+        car_registration_number = args[0]
+        if plate_format.match(car_registration_number) is None :
+            return False, 'Invalid registeration Plate'
+        if not args[2].isdigit():
+            return False, 'Age must be a number'
+
+        if args[1] != 'driver_age':
+            return False, "Please add the driver's age in the command"
+
+        return True, "Valid Arguments"
+    except IndexError:
+            return False , 'Arguments Missing'
+
+
+
+
 @app.parking_functions('Slot_numbers_for_driver_of_age $age')
 def find_slots_for_given_driver_age(age):
     slots_for_certain_age = [slot + 1 for slot, customer in enumerate(parking_lot.parking_slots) if
                              customer and customer.age == int(age)]
-    return slots_for_certain_age
+    return str(slots_for_certain_age)[1:-1]
 
 
 @app.parking_functions('Slot_number_for_car_with_number $ car_registration_number')
-def find_slots_for_given_number(car_registration_number_number):
-    slot_for_certain_car_number = next(
+def find_slots_for_given_car_number(car_registration_number_number):
+    slot_for_certain_car_number = next((
         slot + 1 for slot, customer in enumerate(parking_lot.parking_slots) if
-        customer.car_registration_number == car_registration_number_number)
+        customer.car_registration_number == car_registration_number_number) ,None)
     return slot_for_certain_car_number
 
 
@@ -81,10 +101,12 @@ def de_assign_slot(slot_number):
 
 @app.parking_functions('Vehicle_registration_number_for_driver_of_age $age')
 def find_registration_numbers_for_given_age(age):
-    registration_numbers = [customer.car_registration_number for customer in parking_lot.parking_slots if customer and
-                            customer.age == int(age)]
-    return registration_numbers
-
+    try:
+        registration_numbers = [customer.car_registration_number for customer in parking_lot.parking_slots if customer and
+                                customer.age == int(age)]
+        return registration_numbers
+    except ValueError:
+        return 'Age should be a number'
 
 if __name__ == '__main__':
     app.run()
