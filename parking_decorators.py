@@ -23,8 +23,7 @@ class ParkingApp:
         :return:
         """
         try:
-            #filename = sys.argv[1]
-            filename = 'input.txt'
+            filename = sys.argv[1]
             with open(filename) as file:
                 for line in file:
                     line_split = line.split()

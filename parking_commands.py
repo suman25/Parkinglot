@@ -70,7 +70,7 @@ def check_for_valid_args(*args):
 def find_slots_for_given_driver_age(age):
     slots_for_certain_age = [slot + 1 for slot, customer in enumerate(parking_lot.parking_slots) if
                              customer and customer.age == int(age)]
-    return str(slots_for_certain_age)[1:-1]
+    return str(slots_for_certain_age)[1:-1] if slots_for_certain_age else None
 
 
 @app.parking_functions('Slot_number_for_car_with_number $ car_registration_number')
@@ -102,7 +102,7 @@ def find_registration_numbers_for_given_age(age):
         registration_numbers = [customer.car_registration_number for customer in parking_lot.parking_slots if
                                 customer and
                                 customer.age == int(age)]
-        return registration_numbers
+        return str(registration_numbers)[1:-1] if registration_numbers else None
     except ValueError:
         return 'Age should be a number'
 
